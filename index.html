@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Accident Database System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .tabs {
+            display: flex;
+            background: #f5f5f5;
+            border-bottom: 2px solid #ddd;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            background: #f5f5f5;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            color: #555;
+            transition: all 0.3s;
+        }
+        
+        .tab:hover {
+            background: #e0e0e0;
+        }
+        
+        .tab.active {
+            background: white;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .tab-content {
+            padding: 30px;
+        }
+        
+        .section {
+            display: none;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #f85032 0%, #e73827 100%);
+        }
+        
+        .search-filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .accident-card {
+            background: #f9f9f9;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .accident-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .accident-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .accident-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .info-label {
+            font-size: 12px;
+            color: #666;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .info-value {
+            font-size: 14px;
+            color: #333;
+            margin-top: 2px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 3em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .stat-label {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        
+        .success {
+            background: #efe;
+            color: #3c3;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background: #f5f5f5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚗 Car Accident Database System</h1>
+            <p>Track, Analyze, and Prevent Traffic Accidents</p>
+        </header>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('search')">Search Accidents</button>
+            <button class="tab" onclick="showTab('add')">Add Accident</button>
+            <button class="tab" onclick="showTab('statistics')">Statistics</button>
+            <button class="tab" onclick="showTab('trends')">Yearly Trends</button>
+        </div>
+        
+        <div class="tab-content">
+            <!-- Search Tab -->
+            <div id="search" class="section active">
+                <h2>Search Accidents</h2>
+                <div class="search-filters">
+                    <div class="form-group">
+                        <label>State</label>
+                        <select id="filterState">
+                            <option value="">All States</option>
+                            <option value="Georgia">Georgia</option>
+                            <option value="California">California</option>
+                            <option value="Texas">Texas</option>
+                            <option value="Florida">Florida</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Year</label>
+                        <select id="filterYear">
+                            <option value="">All Years</option>
+                            <option value="2024">2024</option>
+                            <option value="2023">2023</option>
+                            <option value="2022">2022</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Severity</label>
+                        <select id="filterSeverity">
+                            <option value="">All Severities</option>
+                            <option value="Minor">Minor</option>
+                            <option value="Moderate">Moderate</option>
+                            <option value="Serious">Serious</option>
+                            <option value="Severe">Severe</option>
+                            <option value="Fatal">Fatal</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn" onclick="searchAccidents()">Search</button>
+                
+                <div id="searchResults" style="margin-top: 30px;"></div>
+            </div>
+            
+            <!-- Add Accident Tab -->
+            <div id="add" class="section">
+                <h2>Add New Accident Record</h2>
+                <form id="addAccidentForm">
+                    <div class="form-group">
+                        <label>Accident Date *</label>
+                        <input type="date" id="accidentDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Accident Time</label>
+                        <input type="time" id="accidentTime">
+                    </div>
+                    <div class="form-group">
+                        <label>State *</label>
+                        <input type="text" id="state" required placeholder="e.g., Georgia">
+                    </div>
+                    <div class="form-group">
+                        <label>County</label>
+                        <input type="text" id="county" placeholder="e.g., Fulton">
+                    </div>
+                    <div class="form-group">
+                        <label>City</label>
+                        <input type="text" id="city" placeholder="e.g., Atlanta">
+                    </div>
+                    <div class="form-group">
+                        <label>Total Vehicles</label>
+                        <input type="number" id="totalVehicles" min="1" value="1">
+                    </div>
+                    <div class="form-group">
+                        <label>Total Casualties</label>
+                        <input type="number" id="totalCasualties" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Primary Cause</label>
+                        <input type="text" id="primaryCause" placeholder="e.g., Speeding">
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="description" placeholder="Describe the accident..."></textarea>
+                    </div>
+                    <button type="submit" class="btn">Add Accident</button>
+                </form>
+                <div id="addResult"></div>
+            </div>
+            
+            <!-- Statistics Tab -->
+            <div id="statistics" class="section">
+                <h2>Accident Statistics by Contributing Factors</h2>
+                <button class="btn" onclick="loadFactorStatistics()">Load Statistics</button>
+                <div id="factorStats"></div>
+            </div>
+            
+            <!-- Trends Tab -->
+            <div id="trends" class="section">
+                <h2>Yearly Accident Trends</h2>
+                <button class="btn" onclick="loadYearlyTrends()">Load Trends</button>
+                <div id="yearlyTrends"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Sample data for demonstration (replace with actual API calls)
+        const sampleAccidents = [
+            {
+                accident_id: 1,
+                accident_date: '2024-01-15',
+                state: 'Georgia',
+                county: 'Fulton',
+                city: 'Atlanta',
+                total_vehicles: 2,
+                total_casualties: 1,
+                primary_cause: 'Speeding',
+                severity_level: 'Moderate',
+                condition_name: 'Clear',
+                road_type_name: 'Interstate Highway'
+            },
+            {
+                accident_id: 2,
+                accident_date: '2024-02-20',
+                state: 'Georgia',
+                county: 'Gwinnett',
+                city: 'Lawrenceville',
+                total_vehicles: 3,
+                total_casualties: 2,
+                primary_cause: 'Distracted Driving',
+                severity_level: 'Serious',
+                condition_name: 'Rain',
+                road_type_name: 'City Street'
+            },
+            {
+                accident_id: 3,
+                accident_date: '2024-03-10',
+                state: 'California',
+                county: 'Los Angeles',
+                city: 'Los Angeles',
+                total_vehicles: 2,
+                total_casualties: 4,
+                primary_cause: 'Drunk Driving',
+                severity_level: 'Fatal',
+                condition_name: 'Clear',
+                road_type_name: 'State Highway'
+            }
+        ];
+        
+        function showTab(tabName) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+        
+        function searchAccidents() {
+            const state = document.getElementById('filterState').value;
+            const year = document.getElementById('filterYear').value;
+            const severity = document.getElementById('filterSeverity').value;
+            
+            let filtered = sampleAccidents.filter(acc => {
+                let match = true;
+                if (state && acc.state !== state) match = false;
+                if (year && !acc.accident_date.startsWith(year)) match = false;
+                if (severity && acc.severity_level !== severity) match = false;
+                return match;
+            });
+            
+            displayResults(filtered);
+        }
+        
+        function displayResults(accidents) {
+            const resultsDiv = document.getElementById('searchResults');
+            
+            if (accidents.length === 0) {
+                resultsDiv.innerHTML = '<p class="loading">No accidents found matching your criteria.</p>';
+                return;
+            }
+            
+            let html = '';
+            accidents.forEach(acc => {
+                html += `
+                    <div class="accident-card">
+                        <h3>Accident #${acc.accident_id} - ${acc.city}, ${acc.state}</h3>
+                        <div class="accident-info">
+                            <div class="info-item">
+                                <span class="info-label">Date</span>
+                                <span class="info-value">${acc.accident_date}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Severity</span>
+                                <span class="info-value">${acc.severity_level}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Vehicles</span>
+                                <span class="info-value">${acc.total_vehicles}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Casualties</span>
+                                <span class="info-value">${acc.total_casualties}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Cause</span>
+                                <span class="info-value">${acc.primary_cause}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Weather</span>
+                                <span class="info-value">${acc.condition_name}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Road Type</span>
+                                <span class="info-value">${acc.road_type_name}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            resultsDiv.innerHTML = html;
+        }
+        
+        document.getElementById('addAccidentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                accident_date: document.getElementById('accidentDate').value,
+                accident_time: document.getElementById('accidentTime').value,
+                state: document.getElementById('state').value,
+                county: document.getElementById('county').value,
+                city: document.getElementById('city').value,
+                total_vehicles: document.getElementById('totalVehicles').value,
+                total_casualties: document.getElementById('totalCasualties').value,
+                primary_cause: document.getElementById('primaryCause').value,
+                description: document.getElementById('description').value
+            };
+            
+            // Simulate success
+            document.getElementById('addResult').innerHTML = 
+                '<div class="success">Accident record added successfully! Accident ID: ' + 
+                Math.floor(Math.random() * 1000) + '</div>';
+            
+            this.reset();
+            
+            setTimeout(() => {
+                document.getElementById('addResult').innerHTML = '';
+            }, 3000);
+        });
+        
+        function loadFactorStatistics() {
+            const statsDiv = document.getElementById('factorStats');
+            
+            const sampleStats = [
+                { factor_name: 'Speeding', accident_count: 125, total_casualties: 87, avg_severity: 3.2 },
+                { factor_name: 'Distracted Driving', accident_count: 98, total_casualties: 65, avg_severity: 2.8 },
+                { factor_name: 'Drunk Driving', accident_count: 67, total_casualties: 112, avg_severity: 4.1 }
+            ];
+            
+            let html = '<table><thead><tr><th>Factor</th><th>Accidents</th><th>Casualties</th><th>Avg Severity</th></tr></thead><tbody>';
+            
+            sampleStats.forEach(stat => {
+                html += `
+                    <tr>
+                        <td>${stat.factor_name}</td>
+                        <td>${stat.accident_count}</td>
+                        <td>${stat.total_casualties}</td>
+                        <td>${stat.avg_severity.toFixed(1)}</td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            statsDiv.innerHTML = html;
+        }
+        
+        function loadYearlyTrends() {
+            const trendsDiv = document.getElementById('yearlyTrends');
+            
+            const sampleTrends = [
+                { year: 2024, state: 'Georgia', total_accidents: 1250, total_casualties: 782 },
+                { year: 2023, state: 'Georgia', total_accidents: 1180, total_casualties: 745 },
+                { year: 2024, state: 'California', total_accidents: 3420, total_casualties: 2100 }
+            ];
+            
+            let html = '<div class="stats-grid">';
+            
+            sampleTrends.forEach(trend => {
+                html += `
+                    <div class="stat-card">
+                        <div class="stat-label">${trend.year} - ${trend.state}</div>
+                        <div class="stat-number">${trend.total_accidents}</div>
+                        <div class="stat-label">Total Accidents</div>
+                        <div style="margin-top: 15px; font-size: 1.5em;">${trend.total_casualties}</div>
+                        <div class="stat-label">Total Casualties</div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            trendsDiv.innerHTML = html;
+        }
+        
+        // Load initial results
+        displayResults(sampleAccidents);
+    </script>
+</body>
+</html>

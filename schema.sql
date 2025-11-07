@@ -25,7 +25,7 @@ CREATE TABLE NHTSA_NATIONAL_STATS (
     UNIQUE KEY unique_year (year)
 );
 
--- Insert NHTSA National Statistics Data (1994-2023)
+-- NHTSA National Statistics Data (1994-2023)
 INSERT INTO NHTSA_NATIONAL_STATS (
     year, fatal_crashes, total_fatalities, drivers_killed, passengers_killed, 
     unknown_occupants, vehicle_occupants_total, motorcyclists_killed, 
@@ -66,7 +66,7 @@ INSERT INTO NHTSA_NATIONAL_STATS (
 (1995, 37241, 41817, 22370, 10576, 118, 33064, 2227, 5584, 833, 109, 6526, 2423, 262803, 197065, 176628, 1.73, 15.91, 21.22, 23.68),
 (1994, 36254, 40716, 21596, 10294, 108, 31998, 2320, 5489, 802, 107, 6398, 2358, 260327, 192497, 175403, 1.73, 15.64, 21.15, 23.21);
 
--- Create indexes for better query performance
+-- index creation for query performance
 CREATE INDEX idx_nhtsa_year ON NHTSA_NATIONAL_STATS(year);
 CREATE INDEX idx_nhtsa_fatal_crashes ON NHTSA_NATIONAL_STATS(fatal_crashes);
 CREATE INDEX idx_nhtsa_total_fatalities ON NHTSA_NATIONAL_STATS(total_fatalities);

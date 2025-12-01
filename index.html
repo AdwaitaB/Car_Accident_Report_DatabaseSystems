@@ -269,6 +269,8 @@
             <button class="tab" onclick="showTab('add', this)">Add Accident</button>
             <button class="tab" onclick="showTab('statistics', this)">Statistics</button>
             <button class="tab" onclick="showTab('trends', this)">Yearly Trends</button>
+            <button class="tab" onclick="showTab('forecast', this)">Forecast</button>
+            <button class="tab" onclick="showTab('simulate', this)">Simulation</button>
         </div>
         
         <div class="tab-content">
@@ -279,6 +281,31 @@
                     <div class="form-group">
                         <label>Filter by Year</label>
                         <input type="number" id="filterYear" placeholder="e.g., 2023" min="1990" max="2099">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Min Total Fatalities</label>
+                        <input type="number" id="minFatalities" placeholder="e.g., 40000" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Max Total Fatalities</label>
+                        <input type="number" id="maxFatalities" placeholder="e.g., 45000" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Min Fatal Crashes</label>
+                        <input type="number" id="minCrashes" placeholder="e.g., 35000" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Max Fatal Crashes</label>
+                        <input type="number" id="maxCrashes" placeholder="e.g., 42000" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Min Fatality Rate (per 100k pop)</label>
+                        <input type="number" id="minFatalityRate" placeholder="e.g., 10.0" step="0.01" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Max Fatality Rate (per 100k pop)</label>
+                        <input type="number" id="maxFatalityRate" placeholder="e.g., 20.0" step="0.01" min="0">
                     </div>
                 </div>
                 <button class="btn" onclick="searchAccidents()">Search</button>
@@ -361,6 +388,32 @@
                 <button class="btn" onclick="loadYearlyTrends()">Load Trends</button>
                 <div id="yearlyTrends"></div>
             </div>
+
+            <!-- Forecast Tab -->
+            <div id="forecast" class="section">
+                <h2>Accident Forecast</h2>
+                <div class="form-group">
+                    <label>Years to forecast</label>
+                    <input type="number" id="forecastYears" min="1" max="20" value="5">
+                </div>
+                <button class="btn" onclick="loadForecast()">Run Forecast</button>
+                <div id="forecastResult" style="margin-top:20px;"></div>
+            </div>
+
+            <!-- Simulation Tab -->
+            <div id="simulate" class="section">
+                <h2>What-if Simulation</h2>
+                <div class="form-group">
+                    <label>Fatality rate change (%)</label>
+                    <input type="number" id="simFatalityRatePct" step="0.1" value="-5">
+                </div>
+                <div class="form-group">
+                    <label>Population change (%)</label>
+                    <input type="number" id="simPopulationPct" step="0.1" value="1">
+                </div>
+                <button class="btn" onclick="runSimulation()">Run Simulation</button>
+                <div id="simulationResult" style="margin-top:20px;"></div>
+            </div>
         </div>
     </div>
     
@@ -384,9 +437,22 @@ function showTab(tabName, btn) {
 // ---------------------- SEARCH ACCIDENTS ----------------------
 async function searchAccidents() {
     const year = document.getElementById('filterYear').value;
+    const minFatalities = document.getElementById('minFatalities').value;
+    const maxFatalities = document.getElementById('maxFatalities').value;
+    const minCrashes = document.getElementById('minCrashes').value;
+    const maxCrashes = document.getElementById('maxCrashes').value;
+    const minFatalityRate = document.getElementById('minFatalityRate').value;
+    const maxFatalityRate = document.getElementById('maxFatalityRate').value;
 
     const params = new URLSearchParams();
     if (year) params.append('year', year);
+    if (minFatalities) params.append('min_fatalities', minFatalities);
+    if (maxFatalities) params.append('max_fatalities', maxFatalities);
+    if (minCrashes) params.append('min_crashes', minCrashes);
+    if (maxCrashes) params.append('max_crashes', maxCrashes);
+    if (minFatalityRate) params.append('min_fatality_rate', minFatalityRate);
+    if (maxFatalityRate) params.append('max_fatality_rate', maxFatalityRate);
+
     const url = `${API_BASE}/accidents${params.toString() ? '?' + params.toString() : ''}`;
 
     const resultsDiv = document.getElementById('searchResults');
@@ -578,4 +644,54 @@ async function loadYearlyTrends() {
         trendsDiv.innerHTML = `<div class="error">Could not load trends.</div>`;
     }
 }
+
+// ---------------------- FORECAST ----------------------
+async function loadForecast() {
+    const years = parseInt(document.getElementById('forecastYears').value) || 5;
+    const resDiv = document.getElementById('forecastResult');
+    resDiv.innerHTML = "<p class='loading'>Running forecast...</p>";
+    try {
+        const res = await fetch(`${API_BASE}/forecast?years=${years}`);
+        if (!res.ok) throw new Error(`Server error: ${res.status}`);
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+
+        let html = `<h3>Forecast for next ${years} years</h3>`;
+        html += `<table><thead><tr><th>Year</th><th>Predicted Fatalities</th></tr></thead><tbody>`;
+        data.forecast.forEach(row => {
+            html += `<tr><td>${row.year}</td><td>${row.predicted_fatalities}</td></tr>`;
+        });
+        html += `</tbody></table>`;
+        resDiv.innerHTML = html;
+    } catch (err) {
+        resDiv.innerHTML = `<div class='error'>Forecast error: ${err.message}</div>`;
+    }
+}
+
+// ---------------------- SIMULATION ----------------------
+async function runSimulation() {
+    const fatalityRatePct = parseFloat(document.getElementById('simFatalityRatePct').value) || 0;
+    const populationPct = parseFloat(document.getElementById('simPopulationPct').value) || 0;
+    const resDiv = document.getElementById('simulationResult');
+    resDiv.innerHTML = "<p class='loading'>Running simulation...</p>";
+    try {
+        const res = await fetch(`${API_BASE}/simulate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fatality_rate_pct: fatalityRatePct, population_pct: populationPct })
+        });
+        if (!res.ok) throw new Error(`Server error: ${res.status}`);
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+
+        let html = `<h3>Simulation result (baseline year ${data.baseline.year})</h3>`;
+        html += `<p>Baseline fatalities: <strong>${data.baseline.total_fatalities}</strong></p>`;
+        html += `<p>Projected fatalities: <strong>${data.projected_fatalities}</strong></p>`;
+        html += `<p>Delta: <strong>${data.delta} (${data.percent_change}%)</strong></p>`;
+        resDiv.innerHTML = html;
+    } catch (err) {
+        resDiv.innerHTML = `<div class='error'>Simulation error: ${err.message}</div>`;
+    }
+}
+</script>
 </script>

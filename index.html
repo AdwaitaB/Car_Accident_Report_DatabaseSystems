@@ -480,7 +480,7 @@ function displayResults(stats) {
     stats.forEach(stat => {
         html += `
             <div class="accident-card">
-                <h3>Year ${stat.year}</h3>
+                <h3>Year ${stat.year} <small style="font-size:0.6em; color:#666; margin-left:8px;">ID: ${stat.stat_id || ''}</small></h3>
                 <div class="accident-info">
                     <div class="info-item">
                         <span class="info-label">Total Fatalities</span>
@@ -515,12 +515,43 @@ function displayResults(stats) {
                         <span class="info-value">${stat.registered_vehicles || 0}</span>
                     </div>
                 </div>
+                <div style="margin-top:12px; display:flex; gap:8px;">
+                    <button class="btn" onclick="startEdit(${stat.stat_id})">Edit</button>
+                    <button class="btn btn-danger" onclick="deleteRecord(${stat.stat_id})">Delete</button>
+                </div>
             </div>
         `;
     });
 
     html += '</div>';
     resultsDiv.innerHTML = html;
+}
+
+// ---------------------- DELETE RECORD ----------------------
+async function deleteRecord(stat_id) {
+    if (!stat_id) {
+        alert('Cannot determine record id to delete.');
+        return;
+    }
+
+    if (!confirm('Delete this record for id ' + stat_id + '? This cannot be undone.')) return;
+
+    try {
+        const res = await fetch(`${API_BASE}/accidents/${stat_id}`, { method: 'DELETE' });
+        const data = await res.json().catch(() => ({}));
+        if (res.status === 404) {
+            alert(data.error || 'Record not found');
+            await searchAccidents();
+            return;
+        }
+        if (!res.ok) throw new Error(data.error || `Server error: ${res.status}`);
+
+        // success
+        alert('Record deleted successfully');
+        await searchAccidents();
+    } catch (err) {
+        alert('Delete failed: ' + err.message);
+    }
 }
 
 // Load all statistics on startup
@@ -537,6 +568,8 @@ function displayResults(stats) {
 // ---------------------- ADD STATISTIC ----------------------
 document.getElementById('addAccidentForm').addEventListener('submit', async function(e) {
     e.preventDefault();
+
+    const editId = window.editStatId || null;
 
     const formData = {
         year: parseInt(document.getElementById('year').value),
@@ -565,16 +598,41 @@ document.getElementById('addAccidentForm').addEventListener('submit', async func
     addResult.innerHTML = "<p class='loading'>Submitting...</p>";
 
     try {
-        const res = await fetch(`${API_BASE}/accidents/form`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(formData)
-        });
+        let res;
+        if (editId) {
+            // Update existing record
+            res = await fetch(`${API_BASE}/accidents/${editId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
 
-        if (!res.ok) throw new Error(`Server error: ${res.status}`);
-        const result = await res.json();
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error || `Server error: ${res.status}`);
+            }
 
-        addResult.innerHTML = `<div class="success">Statistics added! Record ID: ${result.id}</div>`;
+            const result = await res.json();
+            addResult.innerHTML = `<div class="success">Statistics updated! Record ID: ${result.updated_id}</div>`;
+            // reset edit state
+            window.editStatId = null;
+            const submitBtn = document.querySelector('#addAccidentForm button[type=submit]');
+            if (submitBtn) submitBtn.textContent = 'Add Statistics Record';
+            const cancelBtn = document.getElementById('cancelEditBtn');
+            if (cancelBtn) cancelBtn.style.display = 'none';
+        } else {
+            // Create new
+            res = await fetch(`${API_BASE}/accidents/form`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(formData)
+            });
+
+            if (!res.ok) throw new Error(`Server error: ${res.status}`);
+            const result = await res.json();
+            addResult.innerHTML = `<div class="success">Statistics added! Record ID: ${result.id}</div>`;
+        }
+
         this.reset();
         await searchAccidents();
 
@@ -584,6 +642,63 @@ document.getElementById('addAccidentForm').addEventListener('submit', async func
         addResult.innerHTML = `<div class="error">Error adding statistics: ${err.message}</div>`;
     }
 });
+
+// ---------------------- EDIT FLOW ----------------------
+window.editStatId = null;
+async function startEdit(stat_id) {
+    try {
+        const res = await fetch(`${API_BASE}/accidents/${stat_id}`);
+        if (!res.ok) throw new Error('Failed to fetch record');
+        const data = await res.json();
+
+        // prefill form fields
+        document.getElementById('year').value = data.year || '';
+        document.getElementById('total_fatalities').value = data.total_fatalities || 0;
+        document.getElementById('fatal_crashes').value = data.fatal_crashes || 0;
+        document.getElementById('drivers_killed').value = data.drivers_killed || 0;
+        document.getElementById('passengers_killed').value = data.passengers_killed || 0;
+        document.getElementById('motorcyclists_killed').value = data.motorcyclists_killed || 0;
+        document.getElementById('pedalcyclists_killed').value = data.pedalcyclists_killed || 0;
+        document.getElementById('pedestrians_killed').value = data.pedestrians_killed || 0;
+        document.getElementById('licensed_drivers').value = data.licensed_drivers || 0;
+        document.getElementById('registered_vehicles').value = data.registered_vehicles || 0;
+        document.getElementById('resident_population').value = data.resident_population || 0;
+        document.getElementById('vehicle_miles_traveled').value = data.vehicle_miles_traveled || 0;
+        document.getElementById('fatality_rate_per_100k_pop').value = data.fatality_rate_per_100k_pop || 0;
+
+        // switch to Add tab
+        showTab('add', document.querySelector('.tab[onclick*="showTab(\'add\'"]'));
+        window.editStatId = stat_id;
+        const submitBtn = document.querySelector('#addAccidentForm button[type=submit]');
+        if (submitBtn) submitBtn.textContent = 'Update Statistics';
+
+        // show cancel button
+        let cancelBtn = document.getElementById('cancelEditBtn');
+        if (!cancelBtn) {
+            cancelBtn = document.createElement('button');
+            cancelBtn.id = 'cancelEditBtn';
+            cancelBtn.type = 'button';
+            cancelBtn.className = 'btn';
+            cancelBtn.style.marginLeft = '10px';
+            cancelBtn.textContent = 'Cancel';
+            cancelBtn.onclick = cancelEdit;
+            document.getElementById('addAccidentForm').appendChild(cancelBtn);
+        }
+        cancelBtn.style.display = 'inline-block';
+
+    } catch (err) {
+        alert('Could not load record for editing');
+    }
+}
+
+function cancelEdit() {
+    window.editStatId = null;
+    document.getElementById('addAccidentForm').reset();
+    const submitBtn = document.querySelector('#addAccidentForm button[type=submit]');
+    if (submitBtn) submitBtn.textContent = 'Add Statistics Record';
+    const cancelBtn = document.getElementById('cancelEditBtn');
+    if (cancelBtn) cancelBtn.style.display = 'none';
+}
 
 // ---------------------- LOAD STATISTICS ----------------------
 async function loadFactorStatistics() {

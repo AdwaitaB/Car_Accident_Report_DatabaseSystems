@@ -267,6 +267,140 @@ def add_accident_from_form():
             cursor.close()
             conn.close()
 
+
+# -------------------------
+# DELETE A NATIONAL STATISTIC
+# -------------------------
+@app.route("/accidents/<int:stat_id>", methods=["DELETE"])
+def delete_accident(stat_id):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Verify record exists
+        cursor.execute("SELECT stat_id FROM NHTSA_NATIONAL_STATS WHERE stat_id = %s", (stat_id,))
+        row = cursor.fetchone()
+        if not row:
+            return jsonify({"error": f"Record with id {stat_id} not found"}), 404
+
+        # Delete the record
+        cursor.execute("DELETE FROM NHTSA_NATIONAL_STATS WHERE stat_id = %s", (stat_id,))
+        conn.commit()
+
+        return jsonify({"success": True, "deleted_id": stat_id}), 200
+
+    except Error as e:
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        if conn.is_connected():
+            cursor.close()
+            conn.close()
+
+
+# -------------------------
+# GET single national statistic
+# -------------------------
+@app.route("/accidents/<int:stat_id>", methods=["GET"])
+def get_accident(stat_id):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM NHTSA_NATIONAL_STATS WHERE stat_id = %s", (stat_id,))
+        row = cursor.fetchone()
+        if not row:
+            return jsonify({"error": f"Record with id {stat_id} not found"}), 404
+
+        # Convert Decimal objects to floats where applicable
+        for key, value in row.items():
+            if hasattr(value, '__float__'):
+                row[key] = float(value)
+
+        return jsonify(row)
+
+    except Error as e:
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        if conn.is_connected():
+            cursor.close()
+            conn.close()
+
+
+# -------------------------
+# UPDATE national statistic
+# -------------------------
+@app.route("/accidents/<int:stat_id>", methods=["PUT"])
+def update_accident(stat_id):
+    data = request.json or {}
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Check the record exists
+        cursor.execute("SELECT stat_id, year FROM NHTSA_NATIONAL_STATS WHERE stat_id = %s", (stat_id,))
+        existing = cursor.fetchone()
+        if not existing:
+            return jsonify({"error": f"Record with id {stat_id} not found"}), 404
+
+        # If year is being changed, ensure no other record uses the same year
+        if 'year' in data:
+            try:
+                year_val = int(data.get('year', 0))
+            except Exception:
+                return jsonify({"error": "Invalid 'year' value"}), 400
+
+            cursor.execute("SELECT stat_id FROM NHTSA_NATIONAL_STATS WHERE year = %s AND stat_id <> %s", (year_val, stat_id))
+            conflict = cursor.fetchone()
+            if conflict:
+                return jsonify({"error": f"Another record already uses year {year_val}"}), 409
+
+        # Prepare update fields - only update allowed columns
+        allowed = [
+            'year','total_fatalities','drivers_killed','passengers_killed',
+            'motorcyclists_killed','pedalcyclists_killed','pedestrians_killed',
+            'nonmotorists_total','other_nonmotorists_killed','unknown_occupants',
+            'fatal_crashes','vehicle_occupants_total','registered_vehicles',
+            'licensed_drivers','resident_population','vehicle_miles_traveled',
+            'fatality_rate_per_100k_pop','fatality_rate_per_100k_drivers',
+            'fatality_rate_per_100k_vehicles','fatality_rate_per_100m_vmt'
+        ]
+
+        set_clauses = []
+        params = []
+        for col in allowed:
+            if col in data:
+                set_clauses.append(f"{col} = %s")
+                # coerce types where sensible
+                if col in ('year','total_fatalities','drivers_killed','passengers_killed','motorcyclists_killed','pedalcyclists_killed','pedestrians_killed','nonmotorists_total','other_nonmotorists_killed','unknown_occupants','fatal_crashes','vehicle_occupants_total','registered_vehicles','licensed_drivers','resident_population'):
+                    try:
+                        params.append(int(data.get(col) or 0))
+                    except Exception:
+                        params.append(0)
+                else:
+                    try:
+                        params.append(float(data.get(col) or 0))
+                    except Exception:
+                        params.append(0.0)
+
+        if not set_clauses:
+            return jsonify({"error": "No updatable fields provided"}), 400
+
+        params.append(stat_id)
+        update_query = f"UPDATE NHTSA_NATIONAL_STATS SET {', '.join(set_clauses)} WHERE stat_id = %s"
+        cursor.execute(update_query, tuple(params))
+        conn.commit()
+
+        return jsonify({"success": True, "updated_id": stat_id}), 200
+
+    except Error as e:
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        if conn.is_connected():
+            cursor.close()
+            conn.close()
+
 # -------------------------
 # GET YEARLY TRENDS
 # -------------------------

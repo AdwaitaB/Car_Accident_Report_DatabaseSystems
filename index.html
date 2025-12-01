@@ -274,66 +274,11 @@
         <div class="tab-content">
             <!-- Search Tab -->
             <div id="search" class="section active">
-                <h2>Search Accidents</h2>
+                <h2>National Accident Statistics</h2>
                 <div class="search-filters">
                     <div class="form-group">
-                        <label>State</label>
-                        <select id="filterState">
-                            <option value="">All States</option>
-                            <option value="Georgia">Georgia</option>
-                            <option value="California">California</option>
-                            <option value="Texas">Texas</option>
-                            <option value="Florida">Florida</option>
-                            <option value="Ohio">Ohio</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Year</label>
-                        <select id="filterYear">
-                            <option value="">All Years</option>
-                            <option value="2024">2024</option>
-                            <option value="2023">2023</option>
-                            <option value="2022">2022</option>
-                            <option value="2021">2021</option>
-                            <option value="2020">2020</option>
-                            <option value="2019">2019</option>
-                            <option value="2018">2018</option>
-                            <option value="2017">2017</option>
-                            <option value="2016">2016</option>
-                            <option value="2015">2015</option>
-                            <option value="2014">2014</option>
-                            <option value="2013">2013</option>
-                            <option value="2012">2012</option>
-                            <option value="2011">2011</option>
-                            <option value="2010">2010</option>
-                            <option value="2009">2009</option>
-                            <option value="2008">2008</option>
-                            <option value="2007">2007</option>
-                            <option value="2006">2006</option>
-                            <option value="2005">2005</option>
-                            <option value="2004">2004</option>
-                            <option value="2003">2003</option>
-                            <option value="2002">2002</option>
-                            <option value="2001">2001</option>
-                            <option value="2000">2000</option>
-                            <option value="1999">1999</option>
-                            <option value="1998">1998</option>
-                            <option value="1997">1997</option>
-                            <option value="1996">1996</option>
-                            <option value="1995">1995</option>
-                            <option value="1994">1994</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Severity</label>
-                        <select id="filterSeverity">
-                            <option value="">All Severities</option>
-                            <option value="Minor">Minor</option>
-                            <option value="Moderate">Moderate</option>
-                            <option value="Serious">Serious</option>
-                            <option value="Severe">Severe</option>
-                            <option value="Fatal">Fatal</option>
-                        </select>
+                        <label>Filter by Year</label>
+                        <input type="number" id="filterYear" placeholder="e.g., 2023" min="1990" max="2099">
                     </div>
                 </div>
                 <button class="btn" onclick="searchAccidents()">Search</button>
@@ -343,45 +288,62 @@
             
             <!-- Add Accident Tab -->
             <div id="add" class="section">
-                <h2>Add New Accident Record</h2>
+                <h2>Add National Accident Statistics</h2>
+                <p><em>Enter yearly national accident statistics data</em></p>
                 <form id="addAccidentForm">
                     <div class="form-group">
-                        <label>Accident Date *</label>
-                        <input type="date" id="accidentDate" required>
+                        <label>Year *</label>
+                        <input type="number" id="year" required min="1990" max="2099" placeholder="e.g., 2024">
                     </div>
                     <div class="form-group">
-                        <label>Accident Time</label>
-                        <input type="time" id="accidentTime">
+                        <label>Total Fatalities *</label>
+                        <input type="number" id="total_fatalities" required min="0" placeholder="e.g., 42000">
                     </div>
                     <div class="form-group">
-                        <label>State *</label>
-                        <input type="text" id="state" required placeholder="e.g., Georgia">
+                        <label>Fatal Crashes *</label>
+                        <input type="number" id="fatal_crashes" required min="0" placeholder="e.g., 39000">
                     </div>
                     <div class="form-group">
-                        <label>County</label>
-                        <input type="text" id="county" placeholder="e.g., Fulton">
+                        <label>Drivers Killed</label>
+                        <input type="number" id="drivers_killed" min="0" placeholder="e.g., 21000">
                     </div>
                     <div class="form-group">
-                        <label>City</label>
-                        <input type="text" id="city" placeholder="e.g., Atlanta">
+                        <label>Passengers Killed</label>
+                        <input type="number" id="passengers_killed" min="0" placeholder="e.g., 6000">
                     </div>
                     <div class="form-group">
-                        <label>Total Vehicles</label>
-                        <input type="number" id="totalVehicles" min="1" value="1">
+                        <label>Motorcyclists Killed</label>
+                        <input type="number" id="motorcyclists_killed" min="0" placeholder="e.g., 6000">
                     </div>
                     <div class="form-group">
-                        <label>Total Casualties</label>
-                        <input type="number" id="totalCasualties" min="0" value="0">
+                        <label>Pedalcyclists Killed</label>
+                        <input type="number" id="pedalcyclists_killed" min="0" placeholder="e.g., 1000">
                     </div>
                     <div class="form-group">
-                        <label>Primary Cause</label>
-                        <input type="text" id="primaryCause" placeholder="e.g., Speeding">
+                        <label>Pedestrians Killed</label>
+                        <input type="number" id="pedestrians_killed" min="0" placeholder="e.g., 7000">
                     </div>
                     <div class="form-group">
-                        <label>Description</label>
-                        <textarea id="description" placeholder="Describe the accident..."></textarea>
+                        <label>Licensed Drivers</label>
+                        <input type="number" id="licensed_drivers" min="0" placeholder="e.g., 228000000">
                     </div>
-                    <button type="submit" class="btn">Add Accident</button>
+                    <div class="form-group">
+                        <label>Registered Vehicles</label>
+                        <input type="number" id="registered_vehicles" min="0" placeholder="e.g., 280000000">
+                    </div>
+                    <div class="form-group">
+                        <label>Resident Population</label>
+                        <input type="number" id="resident_population" min="0" placeholder="e.g., 330000000">
+                    </div>
+                    <div class="form-group">
+                        <label>Vehicle Miles Traveled (millions)</label>
+                        <input type="number" id="vehicle_miles_traveled" step="0.01" min="0" placeholder="e.g., 3200">
+                    </div>
+                    <div class="form-group">
+                        <label>Fatality Rate per 100k Population</label>
+                        <input type="number" id="fatality_rate_per_100k_pop" step="0.01" min="0" placeholder="e.g., 12.5">
+                    </div>
+                    <button type="submit" class="btn">Add Statistics Record</button>
                 </form>
                 <div id="addResult"></div>
             </div>
@@ -404,168 +366,216 @@
     
     <script>
         
-        function showTab(tabName, btn) {
-            document.querySelectorAll('.section').forEach(section => {
-                section.classList.remove('active');
-            });
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
+const API_BASE = "http://127.0.0.1:5000";
 
-            document.getElementById(tabName).classList.add('active');
-            if (btn && btn.classList) {
-                btn.classList.add('active');
-            }
-        }
-        
-        function searchAccidents() {
-            const state = document.getElementById('filterState').value;
-            const year = document.getElementById('filterYear').value;
-            const severity = document.getElementById('filterSeverity').value;
-            
-            let filtered = sampleAccidents.filter(acc => {
-                let match = true;
-                if (state && acc.state !== state) match = false;
-                if (year && !acc.accident_date.startsWith(year)) match = false;
-                if (severity && acc.severity_level !== severity) match = false;
-                return match;
-            });
-            
-            displayResults(filtered);
-        }
-        
-        function displayResults(accidents) {
-            const resultsDiv = document.getElementById('searchResults');
-            
-            if (accidents.length === 0) {
-                resultsDiv.innerHTML = '<p class="loading">No accidents found matching your criteria.</p>';
-                return;
-            }
-            
-            let html = '';
-            accidents.forEach(acc => {
-                html += `
-                    <div class="accident-card">
-                        <h3>Accident #${acc.accident_id} - ${acc.city}, ${acc.state}</h3>
-                        <div class="accident-info">
-                            <div class="info-item">
-                                <span class="info-label">Date</span>
-                                <span class="info-value">${acc.accident_date}</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Severity</span>
-                                <span class="info-value">${acc.severity_level}</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Vehicles</span>
-                                <span class="info-value">${acc.total_vehicles}</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Casualties</span>
-                                <span class="info-value">${acc.total_casualties}</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Cause</span>
-                                <span class="info-value">${acc.primary_cause}</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Weather</span>
-                                <span class="info-value">${acc.condition_name}</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Road Type</span>
-                                <span class="info-value">${acc.road_type_name}</span>
-                            </div>
-                        </div>
+// ---------------------- TAB LOGIC ----------------------
+function showTab(tabName, btn) {
+    document.querySelectorAll('.section').forEach(section =>
+        section.classList.remove('active')
+    );
+    document.querySelectorAll('.tab').forEach(tab =>
+        tab.classList.remove('active')
+    );
+
+    document.getElementById(tabName).classList.add('active');
+    if (btn) btn.classList.add('active');
+}
+
+// ---------------------- SEARCH ACCIDENTS ----------------------
+async function searchAccidents() {
+    const year = document.getElementById('filterYear').value;
+
+    const params = new URLSearchParams();
+    if (year) params.append('year', year);
+    const url = `${API_BASE}/accidents${params.toString() ? '?' + params.toString() : ''}`;
+
+    const resultsDiv = document.getElementById('searchResults');
+    resultsDiv.innerHTML = `<p class='loading'>Loading...</p>`;
+
+    try {
+        const res = await fetch(url);
+        const data = await res.json();
+        displayResults(data);
+    } catch (err) {
+        resultsDiv.innerHTML = `<div class="error">Error loading data.</div>`;
+    }
+}
+
+// ---------------------- DISPLAY RESULTS ----------------------
+function displayResults(stats) {
+    const resultsDiv = document.getElementById('searchResults');
+
+    if (!stats || !stats.length) {
+        resultsDiv.innerHTML = '<p class="loading">No statistics found.</p>';
+        return;
+    }
+
+    let html = '<div class="stats-grid">';
+    stats.forEach(stat => {
+        html += `
+            <div class="accident-card">
+                <h3>Year ${stat.year}</h3>
+                <div class="accident-info">
+                    <div class="info-item">
+                        <span class="info-label">Total Fatalities</span>
+                        <span class="info-value">${stat.total_fatalities || 0}</span>
                     </div>
-                `;
-            });
-            
-            resultsDiv.innerHTML = html;
-        }
-        
-        document.getElementById('addAccidentForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = {
-                accident_date: document.getElementById('accidentDate').value,
-                accident_time: document.getElementById('accidentTime').value,
-                state: document.getElementById('state').value,
-                county: document.getElementById('county').value,
-                city: document.getElementById('city').value,
-                total_vehicles: document.getElementById('totalVehicles').value,
-                total_casualties: document.getElementById('totalCasualties').value,
-                primary_cause: document.getElementById('primaryCause').value,
-                description: document.getElementById('description').value
-            };
-            
-            // Simulate success
-            document.getElementById('addResult').innerHTML = 
-                '<div class="success">Accident record added successfully! Accident ID: ' + 
-                Math.floor(Math.random() * 1000) + '</div>';
-            
-            this.reset();
-            
-            setTimeout(() => {
-                document.getElementById('addResult').innerHTML = '';
-            }, 3000);
+                    <div class="info-item">
+                        <span class="info-label">Fatal Crashes</span>
+                        <span class="info-value">${stat.fatal_crashes || 0}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Drivers Killed</span>
+                        <span class="info-value">${stat.drivers_killed || 0}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Motorcyclists Killed</span>
+                        <span class="info-value">${stat.motorcyclists_killed || 0}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Pedestrians Killed</span>
+                        <span class="info-value">${stat.pedestrians_killed || 0}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Fatality Rate (per 100k pop)</span>
+                        <span class="info-value">${parseFloat(stat.fatality_rate_per_100k_pop).toFixed(2) || 'N/A'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Licensed Drivers</span>
+                        <span class="info-value">${stat.licensed_drivers || 0}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Registered Vehicles</span>
+                        <span class="info-value">${stat.registered_vehicles || 0}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+
+    html += '</div>';
+    resultsDiv.innerHTML = html;
+}
+
+// Load all statistics on startup
+(async function loadInitialStats() {
+    try {
+        const res = await fetch(`${API_BASE}/accidents`);
+        const data = await res.json();
+        displayResults(data);
+    } catch (err) {
+        console.error('Failed to load initial statistics:', err);
+    }
+})();
+
+// ---------------------- ADD STATISTIC ----------------------
+document.getElementById('addAccidentForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const formData = {
+        year: parseInt(document.getElementById('year').value),
+        total_fatalities: parseInt(document.getElementById('total_fatalities').value),
+        fatal_crashes: parseInt(document.getElementById('fatal_crashes').value),
+        drivers_killed: parseInt(document.getElementById('drivers_killed').value) || 0,
+        passengers_killed: parseInt(document.getElementById('passengers_killed').value) || 0,
+        motorcyclists_killed: parseInt(document.getElementById('motorcyclists_killed').value) || 0,
+        pedalcyclists_killed: parseInt(document.getElementById('pedalcyclists_killed').value) || 0,
+        pedestrians_killed: parseInt(document.getElementById('pedestrians_killed').value) || 0,
+        nonmotorists_total: 0,
+        other_nonmotorists_killed: 0,
+        unknown_occupants: 0,
+        vehicle_occupants_total: 0,
+        licensed_drivers: parseInt(document.getElementById('licensed_drivers').value) || 0,
+        registered_vehicles: parseInt(document.getElementById('registered_vehicles').value) || 0,
+        resident_population: parseInt(document.getElementById('resident_population').value) || 0,
+        vehicle_miles_traveled: parseFloat(document.getElementById('vehicle_miles_traveled').value) || 0,
+        fatality_rate_per_100k_pop: parseFloat(document.getElementById('fatality_rate_per_100k_pop').value) || 0,
+        fatality_rate_per_100k_drivers: 0,
+        fatality_rate_per_100k_vehicles: 0,
+        fatality_rate_per_100m_vmt: 0
+    };
+
+    const addResult = document.getElementById('addResult');
+    addResult.innerHTML = "<p class='loading'>Submitting...</p>";
+
+    try {
+        const res = await fetch(`${API_BASE}/accidents/form`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(formData)
         });
-        
-        function loadFactorStatistics() {
-            const statsDiv = document.getElementById('factorStats');
-            
-            const sampleStats = [
-                { factor_name: 'Speeding', accident_count: 125, total_casualties: 87, avg_severity: 3.2 },
-                { factor_name: 'Distracted Driving', accident_count: 98, total_casualties: 65, avg_severity: 2.8 },
-                { factor_name: 'Drunk Driving', accident_count: 67, total_casualties: 112, avg_severity: 4.1 }
-            ];
-            
-            let html = '<table><thead><tr><th>Factor</th><th>Accidents</th><th>Casualties</th><th>Avg Severity</th></tr></thead><tbody>';
-            
-            sampleStats.forEach(stat => {
-                html += `
-                    <tr>
-                        <td>${stat.factor_name}</td>
-                        <td>${stat.accident_count}</td>
-                        <td>${stat.total_casualties}</td>
-                        <td>${stat.avg_severity.toFixed(1)}</td>
-                    </tr>
-                `;
-            });
-            
-            html += '</tbody></table>';
-            statsDiv.innerHTML = html;
+
+        if (!res.ok) throw new Error(`Server error: ${res.status}`);
+        const result = await res.json();
+
+        addResult.innerHTML = `<div class="success">Statistics added! Record ID: ${result.id}</div>`;
+        this.reset();
+        await searchAccidents();
+
+        setTimeout(() => (addResult.innerHTML = ""), 3000);
+
+    } catch (err) {
+        addResult.innerHTML = `<div class="error">Error adding statistics: ${err.message}</div>`;
+    }
+});
+
+// ---------------------- LOAD STATISTICS ----------------------
+async function loadFactorStatistics() {
+    const statsDiv = document.getElementById('factorStats');
+    statsDiv.innerHTML = "<p class='loading'>Loading...</p>";
+
+    try {
+        const res = await fetch(`${API_BASE}/statistics/factors`);
+        const data = await res.json();
+        let html = `<table style="width:100%; border-collapse: collapse;"><thead>
+            <tr style="background: #667eea; color: white;"><th style="padding: 10px; border: 1px solid #ddd;">Year</th><th style="padding: 10px; border: 1px solid #ddd;">Total Fatalities</th><th style="padding: 10px; border: 1px solid #ddd;">Fatal Crashes</th><th style="padding: 10px; border: 1px solid #ddd;">Fatality Rate (per 100k)</th></tr>
+        </thead><tbody>`;
+
+        data.forEach(row => {
+            html += `<tr style="border: 1px solid #ddd;"><td style="padding: 10px; border: 1px solid #ddd;">${row.year}</td><td style="padding: 10px; border: 1px solid #ddd;">${row.total_fatalities}</td><td style="padding: 10px; border: 1px solid #ddd;">${row.fatal_crashes}</td><td style="padding: 10px; border: 1px solid #ddd;">${parseFloat(row.fatality_rate_per_100k_pop).toFixed(2)}</td></tr>`;
+        });
+
+        html += "</tbody></table>";
+        statsDiv.innerHTML = html;
+
+    } catch (err) {
+        statsDiv.innerHTML = `<div class="error">Could not load statistics.</div>`;
+    }
+}
+
+// ---------------------- LOAD YEARLY TRENDS ----------------------
+async function loadYearlyTrends() {
+    const trendsDiv = document.getElementById('yearlyTrends');
+    trendsDiv.innerHTML = "<p class='loading'>Loading...</p>";
+
+    try {
+        const res = await fetch(`${API_BASE}/trends/yearly`);
+        const data = await res.json();
+        const years = data.years || [];
+        const counts = data.counts || [];
+
+        if (!years.length) {
+            trendsDiv.innerHTML = '<p class="loading">No trend data available.</p>';
+            return;
         }
-        
-        function loadYearlyTrends() {
-            const trendsDiv = document.getElementById('yearlyTrends');
-            
-            const sampleTrends = [
-                { year: 2024, state: 'Georgia', total_accidents: 1250, total_casualties: 782 },
-                { year: 2023, state: 'Georgia', total_accidents: 1180, total_casualties: 745 },
-                { year: 2024, state: 'California', total_accidents: 3420, total_casualties: 2100 }
-            ];
-            
-            let html = '<div class="stats-grid">';
-            
-            sampleTrends.forEach(trend => {
-                html += `
-                    <div class="stat-card">
-                        <div class="stat-label">${trend.year} - ${trend.state}</div>
-                        <div class="stat-number">${trend.total_accidents}</div>
-                        <div class="stat-label">Total Accidents</div>
-                        <div style="margin-top: 15px; font-size: 1.5em;">${trend.total_casualties}</div>
-                        <div class="stat-label">Total Casualties</div>
-                    </div>
-                `;
-            });
-            
-            html += '</div>';
-            trendsDiv.innerHTML = html;
+
+        let html = '<div class="stats-grid">';
+
+        for (let i = 0; i < years.length; i++) {
+            html += `
+                <div class="stat-card">
+                    <div class="stat-label">${years[i]}</div>
+                    <div class="stat-number">${counts[i]}</div>
+                    <div class="stat-label">Fatal Crashes</div>
+                </div>
+            `;
         }
-        
-        // Load initial results
-        displayResults(sampleAccidents);
-    </script>
-</body>
-</html>
+
+        html += "</div>";
+        trendsDiv.innerHTML = html;
+
+    } catch (err) {
+        trendsDiv.innerHTML = `<div class="error">Could not load trends.</div>`;
+    }
+}
+</script>

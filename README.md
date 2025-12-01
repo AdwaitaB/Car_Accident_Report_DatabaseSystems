@@ -33,10 +33,14 @@ Visit `http://127.0.0.1:5000/` in your browser.
 
 ## Features
 
-- **Search & Filter**: Query accidents by state, year, and severity
+- **Search & Filter**: Query accidents by year and fatality/crash metrics
 - **Add Records**: Insert new accident records via the web form
+- **Edit Records**: Update existing records with new data
+- **Delete Records**: Remove records from the database
 - **Yearly Trends**: View accident counts and fatalities by year
-- **Factor Analysis**: Analyze accidents by cause
+- **Factor Analysis**: Analyze accidents by top fatality years
+- **Forecasting**: Predict future fatalities using linear regression
+- **Simulation**: Run what-if scenarios with custom fatality rate and population changes
 - **Real-time Updates**: All data persisted to MySQL
 
 ## Project Structure
@@ -52,6 +56,75 @@ Visit `http://127.0.0.1:5000/` in your browser.
 - `POST /accidents/form` — Add a new accident record
 - `GET /trends/yearly` — Get yearly accident statistics
 - `GET /statistics/factors` — Get accidents aggregated by cause
+- `GET /accidents/<stat_id>` — Fetch a single national statistics record by its `stat_id`. Returns `200` with the record or `404` if not found.
+- `PUT /accidents/<stat_id>` — Update a national statistics record. Accepts a JSON body with any updatable fields (e.g., `year`, `total_fatalities`, `fatal_crashes`, etc.). Returns `200` on success, `404` if record not found, or `409` if attempting to update `year` to a value already used by another record.
+- `DELETE /accidents/<stat_id>` — Delete a national statistics record by its `stat_id`. Returns `200` on success or `404` if the record is not found.
+
+### Examples
+
+**Fetch a single record:**
+
+```bash
+curl -i http://127.0.0.1:5000/accidents/123
+```
+
+Response on success:
+
+```json
+HTTP/1.1 200 OK
+{
+  "stat_id": 123,
+  "year": 2023,
+  "total_fatalities": 42514,
+  "fatal_crashes": 39107,
+  "drivers_killed": 21564,
+  "licensed_drivers": 228000000,
+  "resident_population": 333287557
+}
+```
+
+**Update a record:**
+
+```bash
+curl -i -X PUT http://127.0.0.1:5000/accidents/123 \
+  -H "Content-Type: application/json" \
+  -d '{"total_fatalities": 42500, "fatal_crashes": 39050}'
+```
+
+Response on success:
+
+```json
+HTTP/1.1 200 OK
+{
+  "success": true,
+  "updated_id": 123
+}
+```
+
+Response if year conflicts with another record:
+
+```json
+HTTP/1.1 409 Conflict
+{
+  "error": "Another record already uses year 2022"
+}
+```
+
+**Delete a record:**
+
+```bash
+curl -i -X DELETE http://127.0.0.1:5000/accidents/123
+```
+
+Response on success:
+
+```json
+HTTP/1.1 200 OK
+{
+  "success": true,
+  "deleted_id": 123
+}
+```
 
 ## Database Schema
 
